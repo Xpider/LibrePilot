@@ -26,6 +26,9 @@ include(../../library.pri)
 
 macx {
     # Ensures that SDL framework and header files are found when compiled with Qt5.2.1
+
+    #INCLUDEPATH += /usr/local/include
+
     INCLUDEPATH += /Library/Frameworks/SDL.framework/Headers
     SDL = -F/Library/Frameworks
 
@@ -33,6 +36,7 @@ macx {
     QMAKE_CFLAGS += $$SDL
     QMAKE_CXXFLAGS += $$SDL
 
+    #LIBS += /usr/local/lib
     # Let the linker know where to find the frameworks
     LIBS += $$SDL
     LIBS += -framework OpenGL -framework SDL -framework Cocoa

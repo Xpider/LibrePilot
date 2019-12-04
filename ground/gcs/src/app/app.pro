@@ -10,7 +10,22 @@ macx {
     DESTDIR = $$GCS_APP_PATH
 }
 
-QT += xml widgets
+QT += \
+    xml \
+    widgets \
+    concurrent \
+    gui \
+    location \
+    network \
+    opengl \
+    positioning \
+    qml \
+    quick \
+    quickwidgets \
+    sql \
+    svg \
+    texttospeech
+
 
 SOURCES += main.cpp \
     gcssplashscreen.cpp

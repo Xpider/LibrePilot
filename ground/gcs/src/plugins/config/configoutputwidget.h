@@ -70,7 +70,7 @@ public:
         return m_modeCombo;
     }
 
-private:
+public:
     MixerSettings *m_mixer;
     QLabel *m_label;
     QColor m_color;

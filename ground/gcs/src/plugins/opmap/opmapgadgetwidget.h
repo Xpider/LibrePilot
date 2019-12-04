@@ -134,7 +134,7 @@ public slots:
 protected:
     void resizeEvent(QResizeEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);//右键菜单
     void closeEvent(QCloseEvent *);
 private slots:
     void wpDoubleClickEvent(WayPointItem *wp);
@@ -203,6 +203,11 @@ private slots:
     void onAddWayPointAct_triggeredFromContextMenu();
     void onAddWayPointAct_triggeredFromThis();
     void onAddWayPointAct_triggered(internals::PointLatLng coord);
+    //YPF -
+    void onAddTargetPointAct_triggeredFromContextMenu();
+    void onAddTargetPointAct_triggeredFromThis();
+    void onAddTargetPointAct_triggered(internals::PointLatLng coord);
+    // YPF --
     void onEditWayPointAct_triggered();
     void onLockWayPointAct_triggered();
     void onDeleteWayPointAct_triggered();
@@ -231,8 +236,8 @@ private:
     int m_min_zoom;
     int m_max_zoom;
     double m_heading; // uav heading
-    internals::PointLatLng m_mouse_lat_lon;
-    internals::PointLatLng m_context_menu_lat_lon;
+    internals::PointLatLng m_mouse_lat_lon; //光标位置
+    internals::PointLatLng m_context_menu_lat_lon;//右键菜单位置
     int m_prev_tile_number;
     opMapModeType m_map_mode;
     int m_maxUpdateRate;
@@ -250,7 +255,7 @@ private:
     QStandardItemModel wayPoint_treeView_model;
     mapcontrol::WayPointItem *m_mouse_waypoint;
     QPointer<ModelUavoProxy> UAVProxy;
-    QMutex m_map_mutex;
+    QMutex m_map_mutex; //  地图操作互斥量
     bool m_telemetry_connected;
     QAction *reloadAct;
     QAction *ripAct;
@@ -275,6 +280,10 @@ private:
     QAction *wayPointEditorAct;
     QAction *addWayPointActFromThis;
     QAction *addWayPointActFromContextMenu;
+    // YPF-
+    QAction *addTargetPointActFromThis;
+    QAction *addTargetPointActFromContextMenu;
+    // YPF --
     QAction *editWayPointAct;
     QAction *lockWayPointAct;
     QAction *deleteWayPointAct;

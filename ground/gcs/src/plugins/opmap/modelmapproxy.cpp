@@ -334,6 +334,7 @@ void modelMapProxy::deleteWayPoint(int number)
     model->removeRow(number, QModelIndex());
 }
 
+//创建航点
 void modelMapProxy::createWayPoint(internals::PointLatLng coord)
 {
     model->insertRow(model->rowCount(), QModelIndex());

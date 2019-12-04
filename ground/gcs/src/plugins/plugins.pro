@@ -13,6 +13,14 @@ SUBDIRS   = plugin_coreplugin
 # Core plugin
 plugin_coreplugin.subdir = coreplugin
 
+# LPMap UAVGadget
+plugin_lpmap.subdir = lpmap
+plugin_lpmap.depends = plugin_coreplugin
+plugin_lpmap.depends += plugin_uavobjects
+plugin_lpmap.depends += plugin_uavobjectutil
+plugin_lpmap.depends += plugin_uavtalk
+SUBDIRS += plugin_lpmap
+
 # Empty UAVGadget - Default for new splits
 plugin_emptygadget.subdir = emptygadget
 plugin_emptygadget.depends = plugin_coreplugin

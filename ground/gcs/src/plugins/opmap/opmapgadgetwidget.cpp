@@ -342,41 +342,40 @@ void OPMapGadgetWidget::wpDoubleClickEvent(WayPointItem *wp)
 
 void OPMapGadgetWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-    // the user has right clicked on the map - create the pop-up context menu and display it
-
+    //在地图上单击右键-创建弹出菜单并显示
     if (!m_widget || !m_map) {
         return;
     }
 
     if (event->reason() != QContextMenuEvent::Mouse) {
-        // not a mouse click event
+        // 不是鼠标单击事件
         return;
     }
 
-    // current mouse position
+    // 获取当前光标位置
     QPoint p = m_map->mapFromGlobal(event->globalPos());
     m_context_menu_lat_lon = m_map->GetFromLocalToLatLng(p);
 
     if (!m_map->contentsRect().contains(p)) {
-        // the mouse click was not on the map
+        // 鼠标在非地图区域单击
         return;
     }
 
-    // show the mouse position
+    // 显示当前光标位置
     QString mousePosString = QString::number(m_context_menu_lat_lon.Lat(), 'f', 7) + "  " + QString::number(m_context_menu_lat_lon.Lng(), 'f', 7);
     m_widget->labelMousePos->setText(mousePosString);
 
-    // find out if we have a waypoint under the mouse cursor
+    // 查看鼠标光标处是否是航点
     QGraphicsItem *item = m_map->itemAt(p);
     m_mouse_waypoint = qgraphicsitem_cast<mapcontrol::WayPointItem *>(item);
 
-    // find out if the waypoint is locked (or not)
+    // 查看航点是否锁定
     bool waypoint_locked = false;
     if (m_mouse_waypoint) {
         waypoint_locked = (m_mouse_waypoint->flags() & QGraphicsItem::ItemIsMovable) == 0;
     }
 
-    // Dynamically create the popup menu
+    // 动态创建弹出菜单
     QMenu contextMenu;
 
     contextMenu.addAction(reloadAct);
@@ -432,9 +431,9 @@ void OPMapGadgetWidget::contextMenuEvent(QContextMenuEvent *event)
     contextMenu.addAction(changeDefaultLocalAndZoom);
     contextMenu.addSeparator();
 
-    QMenu safeArea(tr("Safety Area definitions"));
+    QMenu safeArea(tr("安全区定义"));
     // menu.addAction(showSafeAreaAct);
-    QMenu safeAreaSubMenu(tr("Safe Area Radius") + " (" + QString::number(m_map->Home->SafeArea()) + "m)", this);
+    QMenu safeAreaSubMenu(tr("安全区半径") + " (" + QString::number(m_map->Home->SafeArea()) + "m)", this);
     for (int i = 0; i < safeAreaAct.count(); i++) {
         safeAreaSubMenu.addAction(safeAreaAct.at(i));
     }
@@ -444,16 +443,16 @@ void OPMapGadgetWidget::contextMenuEvent(QContextMenuEvent *event)
 
     contextMenu.addSeparator();
 
-    contextMenu.addAction(showCompassAct);
+    contextMenu.addAction(showCompassAct);//显示罗盘
 
-    contextMenu.addAction(showDiagnostics);
+    contextMenu.addAction(showDiagnostics);//显示诊断信息
 
-    contextMenu.addAction(showNav);
+    contextMenu.addAction(showNav);//显示导航
 
-    contextMenu.addAction(showUAVInfo);
+    contextMenu.addAction(showUAVInfo);//显示导航信息
 
     // Zoom section
-    contextMenu.addSection(tr("Zoom"));
+    contextMenu.addSection(tr("缩放"));
 
     contextMenu.addAction(zoomInAct);
     contextMenu.addAction(zoomOutAct);
@@ -519,8 +518,8 @@ void OPMapGadgetWidget::contextMenuEvent(QContextMenuEvent *event)
 
         contextMenu.addSection(tr("Waypoints"));
 
-        contextMenu.addAction(wayPointEditorAct);
-        contextMenu.addAction(addWayPointActFromContextMenu);
+        contextMenu.addAction(wayPointEditorAct);//航点编辑
+        contextMenu.addAction(addWayPointActFromContextMenu);//添加航点
 
         if (m_mouse_waypoint) {
             // we have a waypoint under the mouse
@@ -553,10 +552,16 @@ void OPMapGadgetWidget::contextMenuEvent(QContextMenuEvent *event)
     }
     contextMenu.addMenu(&overlaySubMenu);
 
-    // accept the event
+    // YPF - 自定义菜单项
+    //contextMenu.addSeparator();
+    contextMenu.addSection(tr("添加目标点"));
+    contextMenu.addAction(addTargetPointActFromContextMenu);//添加目标点
+
+
+    // 接收事件
     event->accept();
 
-    // popup the menu
+    // 弹出菜单
     contextMenu.exec(event->globalPos());
 }
 
@@ -834,13 +839,14 @@ void OPMapGadgetWidget::OnTileLoadComplete()
     m_widget->progressBarMap->setVisible(false);
 }
 
+//“放大”按钮点击响应函数
 void OPMapGadgetWidget::on_toolButtonZoomP_clicked()
 {
     QMutexLocker locker(&m_map_mutex);
 
     zoomIn();
 }
-
+//“缩小”按钮点击响应函数
 void OPMapGadgetWidget::on_toolButtonZoomM_clicked()
 {
     QMutexLocker locker(&m_map_mutex);
@@ -1105,7 +1111,7 @@ void OPMapGadgetWidget::goHome()
     m_map->SetCurrentPosition(home_pos); // center the map onto the home location
 }
 
-
+//地图放大
 void OPMapGadgetWidget::zoomIn()
 {
     if (!m_widget || !m_map) {
@@ -1457,12 +1463,14 @@ void OPMapGadgetWidget::createActions()
     showCompassAct->setChecked(true);
     connect(showCompassAct, SIGNAL(toggled(bool)), this, SLOT(onShowCompassAct_toggled(bool)));
 
+    //显示诊断信息
     showDiagnostics = new QAction(tr("Show Diagnostics"), this);
     showDiagnostics->setStatusTip(tr("Show/Hide the diagnostics"));
     showDiagnostics->setCheckable(true);
     showDiagnostics->setChecked(false);
     connect(showDiagnostics, SIGNAL(toggled(bool)), this, SLOT(onShowDiagnostics_toggled(bool)));
 
+    //显示导航
     showNav = new QAction(tr("Show Nav"), this);
     showNav->setStatusTip(tr("Show/Hide pathfollower info"));
     showNav->setCheckable(true);
@@ -1491,9 +1499,10 @@ void OPMapGadgetWidget::createActions()
     changeDefaultLocalAndZoom->setStatusTip(tr("Changes the map default zoom and location to the current values"));
     connect(changeDefaultLocalAndZoom, SIGNAL(triggered()), this, SLOT(onChangeDefaultLocalAndZoom()));
 
-    zoomInAct = new QAction(tr("Zoom &In"), this);
+    // 放大 动作
+    zoomInAct = new QAction(tr("放大"), this);
     zoomInAct->setShortcut(Qt::Key_PageUp);
-    zoomInAct->setStatusTip(tr("Zoom the map in"));
+    zoomInAct->setStatusTip(tr("地图放大"));
     connect(zoomInAct, SIGNAL(triggered()), this, SLOT(onGoZoomInAct_triggered()));
     this->addAction(zoomInAct);
 
@@ -1548,11 +1557,13 @@ void OPMapGadgetWidget::createActions()
     wayPointEditorAct->setStatusTip(tr("Open the waypoint editor"));
     connect(wayPointEditorAct, SIGNAL(triggered()), this, SLOT(onOpenWayPointEditorAct_triggered()));
 
+    // 添加航点 动作 右键菜单
     addWayPointActFromContextMenu = new QAction(tr("&Add waypoint"), this);
     addWayPointActFromContextMenu->setShortcut(tr("Ctrl+A"));
     addWayPointActFromContextMenu->setStatusTip(tr("Add waypoint"));
     connect(addWayPointActFromContextMenu, SIGNAL(triggered()), this, SLOT(onAddWayPointAct_triggeredFromContextMenu()));
 
+    //添加航点 动作
     addWayPointActFromThis = new QAction(tr("&Add waypoint"), this);
     addWayPointActFromThis->setShortcut(tr("Ctrl+A"));
     addWayPointActFromThis->setStatusTip(tr("Add waypoint"));
@@ -1716,6 +1727,22 @@ void OPMapGadgetWidget::createActions()
         uavTrailDistance_act->setData(uav_trail_distance);
         uavTrailDistanceAct.append(uavTrailDistance_act);
     }
+
+
+    //YPF - 添加目标点
+    addTargetPointActFromContextMenu = new QAction(tr("添加目标点"), this);
+    //addTargetPointActFromContextMenu->setShortcut(tr("Ctrl+A"));
+    addTargetPointActFromContextMenu->setStatusTip(tr("添加目标点"));
+    connect(addTargetPointActFromContextMenu, SIGNAL(triggered()), this, SLOT(onAddWayPointAct_triggeredFromContextMenu()));
+    //YPF --
+
+    //YPF - 添加目标点
+    addTargetPointActFromThis = new QAction(tr("添加目标点"), this);
+    //addTargetPointActFromThis->setShortcut(tr("Ctrl+A"));
+    addTargetPointActFromThis->setStatusTip(tr("添加目标点"));
+    connect(addTargetPointActFromThis, SIGNAL(triggered()), this, SLOT(onAddWayPointAct_triggeredFromThis()));
+    this->addAction(addTargetPointActFromThis);
+    //YPF --
 }
 
 void OPMapGadgetWidget::onReloadAct_triggered()
@@ -1753,7 +1780,7 @@ void OPMapGadgetWidget::onCopyMouseLonToClipAct_triggered()
     clipboard->setText(QString::number(m_context_menu_lat_lon.Lng(), 'f', 7), QClipboard::Clipboard);
 }
 
-
+//显示罗盘图表
 void OPMapGadgetWidget::onShowCompassAct_toggled(bool show)
 {
     if (!m_widget || !m_map) {
@@ -1763,6 +1790,7 @@ void OPMapGadgetWidget::onShowCompassAct_toggled(bool show)
     m_map->SetShowCompass(show);
 }
 
+//显示诊断信息
 void OPMapGadgetWidget::onShowDiagnostics_toggled(bool show)
 {
     if (!m_widget || !m_map) {
@@ -1846,6 +1874,7 @@ void OPMapGadgetWidget::onMapModeActGroup_triggered(QAction *action)
     setMapMode(mode);
 }
 
+//地图放大
 void OPMapGadgetWidget::onGoZoomInAct_triggered()
 {
     zoomIn();
@@ -2017,15 +2046,18 @@ void OPMapGadgetWidget::onOpenWayPointEditorAct_triggered()
     table->raise();
 }
 
+//添加航点
 void OPMapGadgetWidget::onAddWayPointAct_triggeredFromContextMenu()
 {
     onAddWayPointAct_triggered(m_context_menu_lat_lon);
 }
+//添加航点
 void OPMapGadgetWidget::onAddWayPointAct_triggeredFromThis()
 {
     onAddWayPointAct_triggered(lastLatLngMouse);
 }
 
+//添加航点
 void OPMapGadgetWidget::onAddWayPointAct_triggered(internals::PointLatLng coord)
 {
     if (!m_widget || !m_map) {
@@ -2039,7 +2071,30 @@ void OPMapGadgetWidget::onAddWayPointAct_triggered(internals::PointLatLng coord)
     mapProxy->createWayPoint(coord);
 }
 
+//YPF - 添加目标点
+void OPMapGadgetWidget::onAddTargetPointAct_triggeredFromContextMenu()
+{
+    onAddTargetPointAct_triggered(m_context_menu_lat_lon);
+}
+//添加目标点
+void OPMapGadgetWidget::onAddTargetPointAct_triggeredFromThis()
+{
+    onAddTargetPointAct_triggered(lastLatLngMouse);
+}
+//添加目标点
+void OPMapGadgetWidget::onAddTargetPointAct_triggered(internals::PointLatLng coord)
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
 
+    if (m_map_mode != Normal_MapMode) {
+        return;
+    }
+
+    mapProxy->createWayPoint(coord);
+}
+//YPF --
 /**
  * Called when the user asks to edit a waypoint from the map
  *

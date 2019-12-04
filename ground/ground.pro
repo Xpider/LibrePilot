@@ -33,6 +33,10 @@ SUBDIRS = \
         sub_gcs \
         sub_uavobjgenerator
 
+CONFIG += qt \
+    thread \
+    c++11
+
 # uavobjgenerator
 sub_uavobjgenerator.subdir = uavobjgenerator
 
